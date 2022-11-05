@@ -35,6 +35,16 @@ const menu = () => {
             const viewRoleQuery = new View(viewRoleQueryReq);
             viewRoleQuery.logQuery();
             break;
+        case "View all employees":
+            const viewEmployeeQueryReq = `SELECT e.id, e.first_name 'first name', e.last_name 'last name', 
+            role.title 'job title', role.salary, department.name 'department', CONCAT(m.first_name,' ', m.last_name) 'manager'
+        FROM employee e
+        JOIN role ON e.role_id = role.id
+        JOIN department ON role.department_id = department.id
+        LEFT JOIN employee m ON e.manager_id = m.id`;
+            const viewEmployeeQuery = new View(viewEmployeeQueryReq);
+            viewEmployeeQuery.logQuery();
+            break;
         default:
             console.log("Please choose from list.");
             menu();
