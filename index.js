@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const viewDepartments = require('./lib/viewDepartments');
 
 // Menu
 const menu = () => {
@@ -12,7 +13,14 @@ const menu = () => {
             }
         ])
         .then(({ request }) => { // Deconstructing user request
-            console.log(`You chose to: ${request}.`);
+            switch(request) {
+                case 'View all departments':
+                    viewDepartments();
+                    break;
+                default:
+                    console.log('Please choose from list.');
+                    menu();
+            }
         })
 }
 
