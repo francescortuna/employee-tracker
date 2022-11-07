@@ -1,6 +1,5 @@
 const inquirer = require("inquirer");
 const Query = require("./lib/query");
-const View = require("./lib/query");
 
 // Menu
 const menu = () => {
@@ -49,6 +48,9 @@ const menu = () => {
         case "Add a department":
           addDepartment();
           break;
+        case "Add a role":
+          addRole();
+          break;
         default:
             console.log("Please choose from list.");
             menu();
@@ -62,7 +64,7 @@ const addDepartment = () => {
       {
         type: "input",
         name: "departmentName",
-        message: "Please input department name.",
+        message: "Please input department name",
       }
     ])
     .then(({ departmentName }) => {
@@ -70,6 +72,37 @@ const addDepartment = () => {
       VALUE ("${departmentName}")`;
       const addDepartmentQuery = new Query(addDepartmentQueryReq);
       addDepartmentQuery.addQuery();
+    })
+}
+
+const addRole = async () => {
+  getDepartmentsQuery = new Query();
+  let departments = await getDepartmentsQuery.getDepartment();
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "roleName",
+        message: "Please enter role name"
+      },
+      {
+        type: "number",
+        name: "salary",
+        message: "Please enter salary"
+      },
+      {
+        type: "list",
+        name: "department",
+        message: "Please choose what department the role is in",
+        choices: departments
+      }
+    ])
+    .then(({ roleName, salary, department }) => {
+      let departmentId = departments.indexOf(`${department}`) + 1;
+      const addRoleQueryReq = `INSERT INTO role (title, salary, department_id)
+      VALUE  ("${roleName}", ${salary}, ${departmentId});`;
+      const addRoleQuery = new Query(addRoleQueryReq);
+      addRoleQuery.addQuery();
     })
 }
 
