@@ -51,11 +51,13 @@ const menu = () => {
         case "Add a role":
           addRole();
           break;
-        default:
-            console.log("Please choose from list.");
-            menu();
+        case "Add an employee":
+          addEmployee();
+          break;
       }
     });
+
+    menu();
 };
 
 const addDepartment = () => {
@@ -73,7 +75,7 @@ const addDepartment = () => {
       const addDepartmentQuery = new Query(addDepartmentQueryReq);
       addDepartmentQuery.addQuery();
     })
-}
+};
 
 const addRole = async () => {
   getDepartmentsQuery = new Query();
@@ -104,6 +106,56 @@ const addRole = async () => {
       const addRoleQuery = new Query(addRoleQueryReq);
       addRoleQuery.addQuery();
     })
-}
+};
+
+const addEmployee = async () => {
+  getRolesQuery = new Query();
+  let roles = await getRolesQuery.getRole();
+  let employees = await getRolesQuery.getEmployee();
+  employees.push('None');
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "firstName",
+        message: "Enter the employee's first name"
+      },
+      {
+        type: "input",
+        name: "lastName",
+        message: "Enter the employee's last name"
+      },
+      {
+        type: "list",
+        name: "employeeRole",
+        message: "Choose employee's role",
+        choices: roles
+      },
+      {
+        type: "list",
+        name: "employeeManager",
+        message: "Choose employee's manager",
+        choices: employees
+      }
+    ])
+    .then(({ firstName, lastName, employeeRole, employeeManager }) => {
+      let roleId = roles.indexOf(`${employeeRole}`) + 1;
+
+      const employeesFirstNameArray = employees.map(fullName => {
+        return fullName.split(' ')[0];
+      })
+      let employeeManagerFirstName = employeeManager.split(' ')[0];
+      if(employeeManager == 'None') {
+        managerId = null;
+      } else {
+        managerId = employeesFirstNameArray.indexOf(`${employeeManagerFirstName}`) + 1;
+      }
+
+      const addEmployeeQueryReq = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+      VALUE  ("${firstName}", "${lastName}", ${roleId}, ${managerId})`;
+      const addEmployeeQuery = new Query(addEmployeeQueryReq);
+      addEmployeeQuery.addQuery();
+    })
+};
 
 menu();
