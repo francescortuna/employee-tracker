@@ -18,6 +18,7 @@ const menu = () => {
           "Add an employee",
           "Update an employee role",
           "Update an employee manager",
+          "View employees by manager",
           "Exit Application"
         ],
       },
@@ -26,13 +27,25 @@ const menu = () => {
       // Deconstructing user request
       switch (request) {
         case "View all departments":
-          viewDepartments();
+          const viewDepQueryReq = "SELECT * FROM department";
+          const viewDepQuery = new Query(viewDepQueryReq); // Creates new Query object using query request
+          view(viewDepQuery);
           break;
         case "View all roles":
-          viewRoles();
+          const viewRoleQueryReq = `SELECT role.id, role.title, role.salary, department.name 'department' 
+          FROM role
+          JOIN department ON role.department_id = department.id`;
+          const viewRoleQuery = new Query(viewRoleQueryReq); // Creates new Query object using query request
+          view(viewRoleQuery);
           break;
         case "View all employees":
-          viewEmployees();
+          const viewEmployeeQueryReq = `SELECT e.id, e.first_name 'first name', e.last_name 'last name', role.title 'job title', role.salary, department.name 'department', CONCAT(m.first_name,' ', m.last_name) 'manager'
+          FROM employee e
+          JOIN role ON e.role_id = role.id
+          JOIN department ON role.department_id = department.id
+          LEFT JOIN employee m ON e.manager_id = m.id`;
+          const viewEmployeeQuery = new Query(viewEmployeeQueryReq); // Creates new Query object using query request
+          view(viewEmployeeQuery);
           break;
         case "Add a department":
           addDepartment();
@@ -49,6 +62,9 @@ const menu = () => {
         case "Update an employee manager":
           updateEmployeeManager();
           break;
+        case "View employees by manager":
+          viewEmployeesByManager();
+          break;
         case "Exit Application":
           console.log("Thanks for using application!");
           break;
@@ -56,32 +72,44 @@ const menu = () => {
     });
 };
 
-const viewDepartments = async () => {
-  const viewDepQueryReq = "SELECT * FROM department";
-  const viewDepQuery = new Query(viewDepQueryReq); // Creates new Query object using query request
-  let results = await viewDepQuery.logQuery(); // Waits for object to run its function
+const view = async (objectName) => {
+  let results = await objectName.logQuery(); // Waits for object to run its function
   menu(); // Goes back to main menu
 }
 
-const viewRoles = async () => {
-  const viewRoleQueryReq = `SELECT role.id, role.title, role.salary, department.name 'department' 
-  FROM role
-  JOIN department ON role.department_id = department.id`;
-  const viewRoleQuery = new Query(viewRoleQueryReq); // Creates new Query object using query request
-  let results = await viewRoleQuery.logQuery(); // Waits for object to run its function
-  menu(); // Goes back to main menu
-}
-
-const viewEmployees = async () => {
-  const viewEmployeeQueryReq = `SELECT e.id, e.first_name 'first name', e.last_name 'last name', 
-  role.title 'job title', role.salary, department.name 'department', CONCAT(m.first_name,' ', m.last_name) 'manager'
-  FROM employee e
-  JOIN role ON e.role_id = role.id
-  JOIN department ON role.department_id = department.id
-  LEFT JOIN employee m ON e.manager_id = m.id`;
-  const viewEmployeeQuery = new Query(viewEmployeeQueryReq); // Creates new Query object using query request
-  let results = await viewEmployeeQuery.logQuery(); // Waits for object to run its function
-  menu(); // Goes back to main menu
+const viewEmployeesByManager = async () => {
+  getEmployeesQuery = new Query();
+  let employees = await getEmployeesQuery.getEmployee(); // Gets array of employees
+  employees.unshift("No manager"); // Adds "No manager" to beginning of array
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "manager",
+        message: "Please choose what manager you would like to view employees by",
+        choices: employees
+      }
+    ])
+    .then(({ manager }) => {
+      if (manager == "No manager") {
+        managerIdQuery = `IS NULL`; // If employee has no manager, managerId is null
+      } else {
+        const employeesFirstNameArray = employees.map((fullName) => {
+          return fullName.split(" ")[0]; // Saves first name of each employee to new array
+        });
+        let managerFirstName = manager.split(" ")[0]; // Gets first name of manager
+        managerId = employeesFirstNameArray.indexOf(`${managerFirstName}`); // Finds index using first name of manager
+        managerIdQuery = `= ${managerId}`;
+      }
+      const viewEmployeeQueryReq = `SELECT e.id, e.first_name 'first name', e.last_name 'last name', role.title 'job title', role.salary, department.name 'department', CONCAT(m.first_name, ' ', m.last_name) 'manager'
+    FROM employee e
+      JOIN ROLE ON e.role_id = role.id
+      JOIN department ON role.department_id = department.id
+      LEFT JOIN employee m ON e.manager_id = m.id
+    WHERE e.manager_id ${managerIdQuery}`
+    const viewEmployeeQuery = new Query(viewEmployeeQueryReq);
+    view(viewEmployeeQuery);
+    })
 }
 
 const add = async (objectName) => {
