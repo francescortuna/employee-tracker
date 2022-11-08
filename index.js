@@ -42,6 +42,9 @@ const menu = () => {
         case "Add an employee":
           addEmployee();
           break;
+        case "Update an employee role":
+          updateEmployeeRole();
+          break;
         case "Exit Application":
           console.log("Thanks for using application!");
           break;
@@ -134,7 +137,7 @@ const addEmployee = async () => {
   getRolesQuery = new Query();
   let roles = await getRolesQuery.getRole();
   let employees = await getRolesQuery.getEmployee();
-  employees.push("None");
+  employees.unshift("None");
   inquirer
     .prompt([
       {
@@ -163,15 +166,14 @@ const addEmployee = async () => {
     .then(({ firstName, lastName, employeeRole, employeeManager }) => {
       let roleId = roles.indexOf(`${employeeRole}`) + 1;
 
-      const employeesFirstNameArray = employees.map((fullName) => {
-        return fullName.split(" ")[0];
-      });
-      let employeeManagerFirstName = employeeManager.split(" ")[0];
       if (employeeManager == "None") {
         managerId = null;
       } else {
-        managerId =
-          employeesFirstNameArray.indexOf(`${employeeManagerFirstName}`) + 1;
+        const employeesFirstNameArray = employees.map((fullName) => {
+          return fullName.split(" ")[0];
+        });
+        let employeeManagerFirstName = employeeManager.split(" ")[0];
+        managerId = employeesFirstNameArray.indexOf(`${employeeManagerFirstName}`);
       }
 
       const addEmployeeQueryReq = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
@@ -180,5 +182,41 @@ const addEmployee = async () => {
       add(addEmployeeQuery);
     });
 };
+
+const updateEmployeeRole = async() => {
+  getEmployeesQuery = new Query();
+  let employees = await getEmployeesQuery.getEmployee();
+  let roles = await getEmployeesQuery.getRole();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "Which employee would you like to update?",
+        choices: employees
+      },
+      {
+        type: "list",
+        name: "newRole",
+        message: "Choose the employee's updated role",
+        choices: roles
+      }
+    ])
+    .then(({ employee, newRole }) => {
+      let roleId = roles.indexOf(`${newRole}`) + 1;
+
+      const employeesFirstNameArray = employees.map((fullName) => {
+        return fullName.split(" ")[0];
+        });
+      let employeeFirstName = employee.split(" ")[0];
+      let employeeId = employeesFirstNameArray.indexOf(`${employeeFirstName}`) + 1;
+
+      const updateEmployeeQueryReq = `UPDATE employee
+      SET role_id = ${roleId}
+      WHERE id = ${employeeId}`;
+      const updateEmployeeQuery = new Query(updateEmployeeQueryReq);
+      add(updateEmployeeQuery);
+    })
+}
 
 menu();
