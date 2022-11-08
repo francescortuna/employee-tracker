@@ -1,7 +1,7 @@
 const inquirer = require("inquirer");
 const Query = require("./lib/query");
 
-// Menu
+// Main Menu
 const menu = () => {
   inquirer
     .prompt([
@@ -58,18 +58,18 @@ const menu = () => {
 
 const viewDepartments = async () => {
   const viewDepQueryReq = "SELECT * FROM department";
-  const viewDepQuery = new Query(viewDepQueryReq);
-  let results = await viewDepQuery.logQuery();
-  menu();
+  const viewDepQuery = new Query(viewDepQueryReq); // Creates new Query object using query request
+  let results = await viewDepQuery.logQuery(); // Waits for object to run its function
+  menu(); // Goes back to main menu
 }
 
 const viewRoles = async () => {
   const viewRoleQueryReq = `SELECT role.id, role.title, role.salary, department.name 'department' 
   FROM role
   JOIN department ON role.department_id = department.id`;
-  const viewRoleQuery = new Query(viewRoleQueryReq);
-  let results = await viewRoleQuery.logQuery();
-  menu();
+  const viewRoleQuery = new Query(viewRoleQueryReq); // Creates new Query object using query request
+  let results = await viewRoleQuery.logQuery(); // Waits for object to run its function
+  menu(); // Goes back to main menu
 }
 
 const viewEmployees = async () => {
@@ -79,14 +79,14 @@ const viewEmployees = async () => {
   JOIN role ON e.role_id = role.id
   JOIN department ON role.department_id = department.id
   LEFT JOIN employee m ON e.manager_id = m.id`;
-  const viewEmployeeQuery = new Query(viewEmployeeQueryReq);
-  let results = await viewEmployeeQuery.logQuery();
-  menu();
+  const viewEmployeeQuery = new Query(viewEmployeeQueryReq); // Creates new Query object using query request
+  let results = await viewEmployeeQuery.logQuery(); // Waits for object to run its function
+  menu(); // Goes back to main menu
 }
 
 const add = async (objectName) => {
-  let results = await objectName.addQuery();
-  menu();
+  let results = await objectName.addQuery(); // Waits for object to run its function
+  menu(); // Goes back to main menu
 }
 
 const addDepartment = () => {
@@ -101,14 +101,14 @@ const addDepartment = () => {
     .then(({ departmentName }) => {
       const addDepartmentQueryReq = `INSERT INTO department (name)
       VALUE ("${departmentName}")`;
-      const addDepartmentQuery = new Query(addDepartmentQueryReq);
-      add(addDepartmentQuery);
+      const addDepartmentQuery = new Query(addDepartmentQueryReq); // Creates new Query object using query request
+      add(addDepartmentQuery); // Passes object through add function
     });
 };
 
 const addRole = async () => {
-  getDepartmentsQuery = new Query();
-  let departments = await getDepartmentsQuery.getDepartment();
+  getDepartmentsQuery = new Query(); // Creates new Query object
+  let departments = await getDepartmentsQuery.getDepartment(); // Gets array of departments
   inquirer
     .prompt([
       {
@@ -129,19 +129,19 @@ const addRole = async () => {
       },
     ])
     .then(({ roleName, salary, department }) => {
-      let departmentId = departments.indexOf(`${department}`) + 1;
+      let departmentId = departments.indexOf(`${department}`) + 1; // Finds index of chosen department to use as department ID
       const addRoleQueryReq = `INSERT INTO role (title, salary, department_id)
       VALUE  ("${roleName}", ${salary}, ${departmentId});`;
-      const addRoleQuery = new Query(addRoleQueryReq);
-      add(addRoleQuery);
+      const addRoleQuery = new Query(addRoleQueryReq); // Creates new Query object using query request
+      add(addRoleQuery); // Passes object through add function
     });
 };
 
 const addEmployee = async () => {
   getRolesQuery = new Query();
-  let roles = await getRolesQuery.getRole();
-  let employees = await getRolesQuery.getEmployee();
-  employees.unshift("None");
+  let roles = await getRolesQuery.getRole(); // Gets array of roles
+  let employees = await getRolesQuery.getEmployee(); // Gets array of employees
+  employees.unshift("None"); // Adds "None" to beginning of array
   inquirer
     .prompt([
       {
@@ -168,22 +168,22 @@ const addEmployee = async () => {
       },
     ])
     .then(({ firstName, lastName, employeeRole, employeeManager }) => {
-      let roleId = roles.indexOf(`${employeeRole}`) + 1;
+      let roleId = roles.indexOf(`${employeeRole}`) + 1; // Finds index of chosen role as role ID
 
       if (employeeManager == "None") {
-        managerId = null;
+        managerId = null; // If employee has no manager, managerId is null
       } else {
         const employeesFirstNameArray = employees.map((fullName) => {
-          return fullName.split(" ")[0];
+          return fullName.split(" ")[0]; // Saves first name of each employee to new array
         });
-        let employeeManagerFirstName = employeeManager.split(" ")[0];
-        managerId = employeesFirstNameArray.indexOf(`${employeeManagerFirstName}`);
+        let employeeManagerFirstName = employeeManager.split(" ")[0]; // Gets first name of manager
+        managerId = employeesFirstNameArray.indexOf(`${employeeManagerFirstName}`); // Finds index using first name of manager
       }
 
       const addEmployeeQueryReq = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
       VALUE  ("${firstName}", "${lastName}", ${roleId}, ${managerId})`;
-      const addEmployeeQuery = new Query(addEmployeeQueryReq);
-      add(addEmployeeQuery);
+      const addEmployeeQuery = new Query(addEmployeeQueryReq); // Creates new Query object using query request
+      add(addEmployeeQuery); // Passes object through add function
     });
 };
 
@@ -218,8 +218,8 @@ const updateEmployeeRole = async() => {
       const updateEmployeeQueryReq = `UPDATE employee
       SET role_id = ${roleId}
       WHERE id = ${employeeId}`;
-      const updateEmployeeQuery = new Query(updateEmployeeQueryReq);
-      add(updateEmployeeQuery);
+      const updateEmployeeQuery = new Query(updateEmployeeQueryReq); // Creates new Query object using query request
+      add(updateEmployeeQuery); // Passes object through add function
     })
 }
 
@@ -260,8 +260,8 @@ const updateEmployeeManager = async() => {
       const updateEmployeeQueryReq = `UPDATE employee
       SET manager_id = ${managerId}
       WHERE id = ${employeeId}`;
-      const updateEmployeeQuery = new Query(updateEmployeeQueryReq);
-      add(updateEmployeeQuery);
+      const updateEmployeeQuery = new Query(updateEmployeeQueryReq); // Creates new Query object using query request
+      add(updateEmployeeQuery); // Passes object through add function
     })
 }
 
