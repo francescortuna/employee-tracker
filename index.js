@@ -19,6 +19,7 @@ const menu = () => {
           "Update an employee role",
           "Update an employee manager",
           "View employees by manager",
+          "View employees by department",
           "Exit Application"
         ],
       },
@@ -65,6 +66,9 @@ const menu = () => {
         case "View employees by manager":
           viewEmployeesByManager();
           break;
+        case "View employees by department":
+          viewEmployeesByDept();
+          break;
         case "Exit Application":
           console.log("Thanks for using application!");
           break;
@@ -109,6 +113,31 @@ const viewEmployeesByManager = async () => {
     WHERE e.manager_id ${managerIdQuery}`
     const viewEmployeeQuery = new Query(viewEmployeeQueryReq);
     view(viewEmployeeQuery);
+    })
+}
+
+const viewEmployeesByDept = async () => {
+  getDeptsQuery = new Query();
+  let depts = await getDeptsQuery.getDepartment();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "dept",
+        message: "Please choose what department you would like to view employees by",
+        choices: depts
+      }
+    ])
+    .then(({ dept }) => {
+      let departmentId = depts.indexOf(`${dept}`) + 1;
+      const viewEmployeeQueryReq = `SELECT e.id, e.first_name 'first name', e.last_name 'last name', role.title 'job title', role.salary, department.name 'department', CONCAT(m.first_name, ' ', m.last_name) 'manager'
+      FROM employee e
+      JOIN ROLE ON e.role_id = role.id
+      JOIN department ON role.department_id = department.id
+      LEFT JOIN employee m ON e.manager_id = m.id
+      WHERE role.department_id = ${departmentId}`;
+      const viewEmployeeQuery = new Query(viewEmployeeQueryReq);
+      view(viewEmployeeQuery);
     })
 }
 
