@@ -23,6 +23,7 @@ const menu = () => {
           "Delete a department",
           "Delete a role",
           "Delete an employee",
+          "View total utilized budget of a department",
           "Exit Application"
         ],
       },
@@ -80,6 +81,9 @@ const menu = () => {
           break;
         case "Delete an employee":
           deleteEmployee();
+          break;
+        case "View total utilized budget of a department":
+          viewTotalBudget();
           break;
         case "Exit Application":
           console.log("Thanks for using application!");
@@ -394,6 +398,32 @@ const deleteEmployee = async () => {
       WHERE id = ${employeeId}`;
       deleteEmployeeQuery = new Query(deleteEmployeeQueryReq);
       update(deleteEmployeeQuery);
+    })
+}
+
+const viewTotalBudget = async () => {
+  getDeptsQuery = new Query();
+  let depts = await getDeptsQuery.getDepartment();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "dept",
+        message: "Choose which department you'd like to see the total utilized budget for",
+        choices: depts
+      }
+    ])
+    .then(({ dept }) => {
+      let deptId = depts.indexOf(`${dept}`) + 1;
+      const viewBudgetDeptQueryReq = `SELECT SUM(salary) 'Total Salaries in ${dept} Department'
+      FROM (
+        SELECT role.salary
+        FROM employee
+          JOIN ROLE ON employee.role_id = role.id
+        WHERE
+          role.department_id = ${deptId}) employees_by_dept`;
+      viewBudgetDeptQuery = new Query(viewBudgetDeptQueryReq);
+      view(viewBudgetDeptQuery);
     })
 }
 
