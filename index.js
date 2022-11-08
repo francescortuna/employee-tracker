@@ -17,6 +17,7 @@ const menu = () => {
           "Add a role",
           "Add an employee",
           "Update an employee role",
+          "Update an employee manager",
           "Exit Application"
         ],
       },
@@ -44,6 +45,9 @@ const menu = () => {
           break;
         case "Update an employee role":
           updateEmployeeRole();
+          break;
+        case "Update an employee manager":
+          updateEmployeeManager();
           break;
         case "Exit Application":
           console.log("Thanks for using application!");
@@ -213,6 +217,48 @@ const updateEmployeeRole = async() => {
 
       const updateEmployeeQueryReq = `UPDATE employee
       SET role_id = ${roleId}
+      WHERE id = ${employeeId}`;
+      const updateEmployeeQuery = new Query(updateEmployeeQueryReq);
+      add(updateEmployeeQuery);
+    })
+}
+
+const updateEmployeeManager = async() => {
+  getEmployeesQuery = new Query();
+  let employees = await getEmployeesQuery.getEmployee();
+  let managers = await getEmployeesQuery.getEmployee();
+  managers.unshift('None');
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "Which employee would you like to update?",
+        choices: employees
+      },
+      {
+        type: "list",
+        name: "newManager",
+        message: "Choose the employee's updated manager",
+        choices: managers
+      }
+    ])
+    .then(({ employee, newManager }) => {
+      const employeesFirstNameArray = employees.map((fullName) => {
+        return fullName.split(" ")[0];
+        });
+      let employeeFirstName = employee.split(" ")[0];
+      let employeeId = employeesFirstNameArray.indexOf(`${employeeFirstName}`) + 1;
+
+      if (newManager == "None") {
+        managerId = null;
+      } else {
+        let managerFirstName = newManager.split(" ")[0];
+        managerId = employeesFirstNameArray.indexOf(`${managerFirstName}`) + 1;
+      }
+
+      const updateEmployeeQueryReq = `UPDATE employee
+      SET manager_id = ${managerId}
       WHERE id = ${employeeId}`;
       const updateEmployeeQuery = new Query(updateEmployeeQueryReq);
       add(updateEmployeeQuery);
