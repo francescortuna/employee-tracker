@@ -9,7 +9,6 @@
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [Credits](#credits)
 - [Features](#features)
 
 ## Installation
@@ -38,11 +37,9 @@ node index.js
 
 It will take you to a menu of options.
 
-Here is an example video of how it works:  
+[Here is an example video of how it works](https://drive.google.com/file/d/1upOxZ0blncOQa9iM0e7cDxByofv1_4pK/view?usp=share_link)
 
 ## Features
-
-If your project has a lot of features, list them here.
 
 - View all departments, roles, and employees
 - Add departments, roles, and employees
