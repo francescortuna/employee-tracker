@@ -20,6 +20,9 @@ const menu = () => {
           "Update an employee manager",
           "View employees by manager",
           "View employees by department",
+          "Delete a department",
+          "Delete a role",
+          "Delete an employee",
           "Exit Application"
         ],
       },
@@ -68,6 +71,15 @@ const menu = () => {
           break;
         case "View employees by department":
           viewEmployeesByDept();
+          break;
+        case "Delete a department":
+          deleteDept();
+          break;
+        case "Delete a role":
+          deleteRole();
+          break;
+        case "Delete an employee":
+          deleteEmployee();
           break;
         case "Exit Application":
           console.log("Thanks for using application!");
@@ -141,8 +153,8 @@ const viewEmployeesByDept = async () => {
     })
 }
 
-const add = async (objectName) => {
-  let results = await objectName.addQuery(); // Waits for object to run its function
+const update = async (objectName) => {
+  let results = await objectName.updateQuery(); // Waits for object to run its function
   menu(); // Goes back to main menu
 }
 
@@ -159,7 +171,7 @@ const addDepartment = () => {
       const addDepartmentQueryReq = `INSERT INTO department (name)
       VALUE ("${departmentName}")`;
       const addDepartmentQuery = new Query(addDepartmentQueryReq); // Creates new Query object using query request
-      add(addDepartmentQuery); // Passes object through add function
+      update(addDepartmentQuery); // Passes object through add function
     });
 };
 
@@ -190,7 +202,7 @@ const addRole = async () => {
       const addRoleQueryReq = `INSERT INTO role (title, salary, department_id)
       VALUE  ("${roleName}", ${salary}, ${departmentId});`;
       const addRoleQuery = new Query(addRoleQueryReq); // Creates new Query object using query request
-      add(addRoleQuery); // Passes object through add function
+      update(addRoleQuery); // Passes object through update function
     });
 };
 
@@ -240,7 +252,7 @@ const addEmployee = async () => {
       const addEmployeeQueryReq = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
       VALUE  ("${firstName}", "${lastName}", ${roleId}, ${managerId})`;
       const addEmployeeQuery = new Query(addEmployeeQueryReq); // Creates new Query object using query request
-      add(addEmployeeQuery); // Passes object through add function
+      update(addEmployeeQuery); // Passes object through update function
     });
 };
 
@@ -276,7 +288,7 @@ const updateEmployeeRole = async() => {
       SET role_id = ${roleId}
       WHERE id = ${employeeId}`;
       const updateEmployeeQuery = new Query(updateEmployeeQueryReq); // Creates new Query object using query request
-      add(updateEmployeeQuery); // Passes object through add function
+      update(updateEmployeeQuery); // Passes object through update function
     })
 }
 
@@ -318,7 +330,70 @@ const updateEmployeeManager = async() => {
       SET manager_id = ${managerId}
       WHERE id = ${employeeId}`;
       const updateEmployeeQuery = new Query(updateEmployeeQueryReq); // Creates new Query object using query request
-      add(updateEmployeeQuery); // Passes object through add function
+      update(updateEmployeeQuery); // Passes object through update function
+    })
+}
+
+const deleteDept = async () => {
+  getDeptsQuery = new Query();
+  let depts = await getDeptsQuery.getDepartment();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "dept",
+        message: "Choose which department you'd like to delete",
+        choices: depts
+      }
+    ])
+    .then(({ dept }) => {
+      let deptId = depts.indexOf(`${dept}`) + 1;
+      const deleteDeptQueryReq = `DELETE FROM department
+      WHERE id = ${deptId}`;
+      deleteDeptQuery = new Query(deleteDeptQueryReq);
+      update(deleteDeptQuery);
+    })
+}
+
+const deleteRole = async () => {
+  getRolesQuery = new Query();
+  let roles = await getRolesQuery.getRole();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "role",
+        message: "Choose which role you'd like to delete",
+        choices: roles
+      }
+    ])
+    .then(({ role }) => {
+      let roleId = roles.indexOf(`${role}`) + 1;
+      const deleteRoleQueryReq = `DELETE FROM role
+      WHERE id = ${roleId}`;
+      deleteRoleQuery = new Query(deleteRoleQueryReq);
+      update(deleteRoleQuery);
+    })
+}
+
+const deleteEmployee = async () => {
+  getEmployeesQuery = new Query();
+  let employees = await getEmployeesQuery.getEmployee();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "Choose which employee you'd like to delete",
+        choices: employees
+      }
+    ])
+    .then(({ employee }) => {
+      let employeeId = employees.indexOf(`${employee}`) + 1;
+      const deleteEmployeeQueryReq = `DELETE FROM employee
+      WHERE id = ${employeeId}`;
+      deleteEmployeeQuery = new Query(deleteEmployeeQueryReq);
+      update(deleteEmployeeQuery);
     })
 }
 
