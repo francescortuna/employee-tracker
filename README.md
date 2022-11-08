@@ -18,7 +18,8 @@ To install the application's necessary dependencies, run:
 npm i
 ```
 
-To set-up the database, use MySQL shell to run:
+To set-up the database, add your MySQL password in the lib/connectSql.js file.  
+Use MySQL shell to run:
 ```
 source db/schema.sql
 ```
